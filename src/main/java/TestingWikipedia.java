@@ -41,15 +41,32 @@ public class TestingWikipedia {
 
         }
 
-  /*      @Test
-        public void createAnAccount() {
+        @Test
+        public void loginToAccountSuccesful() {
 
             webdriver.get("https://en.wikipedia.org/wiki/Main_Page");
-            WebElement createAccount = webdriver.findElement(By.xpath("//*[@id='pt-createaccount']/a"));
-            createAccount.click();
+            webdriver.findElement(By.xpath("//*[@id='pt-login']/a")).click();
+            webdriver.findElement(By.xpath("//*[@id='wpName1']")).sendKeys("Szuperteszter");
+            webdriver.findElement(By.xpath("//*[@id='wpPassword1']")).sendKeys("acbgF9y-");
+            webdriver.findElement(By.xpath("//*[@id='wpLoginAttempt']")).click();
+            String expected = "Wikipedia";
+            String actual = webdriver.findElement(By.xpath("//*[@id='mp-welcome']/a")).getText();
+            Assertions.assertEquals(expected, actual);
+        }
 
+    @Test
+    public void loginToAccountUnsuccesful() {
 
-        } */
+        webdriver.get("https://en.wikipedia.org/wiki/Main_Page");
+        webdriver.findElement(By.xpath("//*[@id='pt-login']/a")).click();
+        webdriver.findElement(By.xpath("//*[@id='wpName1']")).sendKeys("Szuperteszter");
+        webdriver.findElement(By.xpath("//*[@id='wpPassword1']")).sendKeys("acbgF-");
+        webdriver.findElement(By.xpath("//*[@id='wpLoginAttempt']")).click();
+        String expected = "Incorrect username or password entered.";
+        String actual = webdriver.findElement(By.xpath("//*[@id='userloginForm']/form/div[1]")).getText();
+        Assertions.assertTrue(actual.contains(expected));
+
+    }
 
         @AfterEach
         public void tearDown() {
