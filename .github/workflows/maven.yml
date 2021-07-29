@@ -1,61 +1,67 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+name: Java CI with Maven use Selenium and Allure report
 
-name: Java CI with Maven
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: push
 
 jobs:
-  build:
-
+  autotests:
+    name: Run tests and generate Allure Report
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v1
-      with:
-        path: |
-          ~/.m2/repository
-        key: ${{ runner.os }}-${{ github.workflow }}-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ github.workflow }}-
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v2
-      with:
-        java-version: '1.8'
-        distribution: 'adopt'
-    - name: Install dependencies
-      run: mvn dependency:go-offline compile compiler:testCompile
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-    - name: Run Test
-      if: always()
-      run: mvn -X clean test
-      continue-on-error: true
-    - name: Get Allure history
-      uses: actions/checkout@v2
-      if: always()
-      continue-on-error: true
-      with:
-        ref: gh-pages
-        path: gh-pages
-    - name: Test marketplace action
-      uses: simple-elf/allure-report-action@master
-      if: always()
-      #id: allure-report
-      with:
-        allure_results: target/allure-results
-        #gh_pages: gh-pages
-        #allure_report: allure-report
-        allure_history: allure-history
-    - name: Deploy report to Github Pages
-      if: always()
-      uses: peaceiris/actions-gh-pages@v2
-      env:
-        PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PUBLISH_BRANCH: gh-pages
-        PUBLISH_DIR: allure-history
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v1
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-${{ github.workflow }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ github.workflow }}-
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Install dependencies
+        run: mvn dependency:go-offline compile compiler:testCompile
+
+      - name: Run Test
+        if: always()
+        run: mvn -X clean test
+        continue-on-error: true
+
+      - name: 📁 Get Allure history
+        uses: actions/checkout@v2
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: 🧪 Allure Report action from marketplace
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        #id: allure-report
+        with:
+          allure_results: target/allure-results
+          #gh_pages: gh-pages
+          #allure_report: allure-report
+          allure_history: allure-history
+
+      - name: 🚚 Deploy report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v2
+        env:
+          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: allure-history
+
+#      - name: 📊 Post the link to the report
+#        if: always()
+#        uses: Sibz/github-status-action@v1
+#        with:
+#          authToken: ${{secrets.GITHUB_TOKEN}}
+#          context: 'Test report'
+#          state: 'success'
+#          sha: ${{ github.event.pull_request.head.sha }}
+#          target_url: kusigeri.github.io/vizsgaremek/${{ github.run_number }}
