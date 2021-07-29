@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="TestingWikipediaProject" target="16" />
+      <module name="TestingWikipediaProject" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
